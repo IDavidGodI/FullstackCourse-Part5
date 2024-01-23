@@ -11,15 +11,19 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState(null)
 
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
     try{
-      const user = await loginService.login({userName, password})
+      const newUser = await loginService.login({userName, password})
 
-      window.localStorage.setItem("BlogListUser", JSON.stringify(user))
-
-      setUser(user)
+      window.localStorage.setItem("BlogListUser", JSON.stringify(newUser))
+      blogService.setToken(newUser.token)
+      setUser(newUser)
       setUserName('')
       setPassword('')
 
@@ -31,15 +35,42 @@ const App = () => {
     }
   }
 
+  const handleNewBlog = async (event) =>{
+    event.preventDefault();
+
+    try{
+      const addedBlog = await blogService.create({
+        title, author, url
+      })
+
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+
+      setBlogs(blogs.concat(addedBlog))
+      setMessage({ text: "New blog added!", success: true})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+
+    }catch(e){
+      setMessage({ text: e.response.data.error, success: false})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
+
+  }
+
   const handleLogOut = () =>{
     window.localStorage.removeItem("BlogListUser");
     setUser(null)
+    blogService.setToken(null)
   }
 
   useEffect(() => {
     blogService.getAll()
       .then(blogs =>{
-        console.log(blogs)
         setBlogs( blogs )  
       })  
   }, [])
@@ -48,7 +79,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("BlogListUser");
     if (loggedUserJSON){
       const loggedUser = JSON.parse(loggedUserJSON);
-
+      blogService.setToken(loggedUser.token)
       setUser(loggedUser)
     } 
   }, [])
@@ -73,11 +104,42 @@ const App = () => {
     </form>
   )
 
+  const newBlogForm = ()=>(
+    <div>
+      <h2>New blog</h2>
+      <form onSubmit={handleNewBlog}>
+        <div>
+          <input 
+            type="text" name="title" placeholder="TITLE"
+            value={ title }
+            onChange = { ({target}) => setTitle(target.value) }
+          />
+        </div>
+        <div>
+          <input 
+            type="text" name="author" placeholder="AUTHOR"
+            value={ author }
+            onChange = { ({target}) => setAuthor(target.value) }
+          />
+        </div>
+        <div>
+          <input 
+            type="text" name="url" placeholder="URL"
+            value={ url }
+            onChange = { ({target}) => setUrl(target.value) }
+          />
+        </div>
+        <button type="submit">create</button>
+      </form>
+    </div>
+  )
+
   const blogsDisplay = ()=>(
     <div>
       <h2>blogs</h2>
-      <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in</p>
-      <button onClick={handleLogOut}>log out</button>
+      <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in <button onClick={handleLogOut}>log out</button></p> 
+      { newBlogForm() }
+
       {
         blogs && 
         blogs.length>0?
@@ -89,14 +151,14 @@ const App = () => {
       }
     </div>
   )
-
+  
   return (
     <>
       {
         message && 
         <Message
           text={ message.text }
-          succes = { message.succes }
+          success = { message.success }
         />
       }
       { !user && loginForm()}
