@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Toggeable from './components/Toggeable'
 import BlogForm from './components/BlogForm'
@@ -13,6 +13,8 @@ const App = () => {
   
   const [message, setMessage] = useState(null)
 
+
+  const BlogFormRef = useRef();
   
 
   const handleLogin = async (loginInfo) => {
@@ -45,6 +47,7 @@ const App = () => {
         setMessage(null)
       }, 5000)
 
+      BlogFormRef.current.toggleVisible();
       return true;
 
     }catch(e){
@@ -85,7 +88,7 @@ const App = () => {
       <h2>blogs</h2>
       <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in <button onClick={handleLogOut}>log out</button></p>
 
-      <Toggeable buttonLabel="Add a blog">
+      <Toggeable buttonLabel="Add a blog" ref={BlogFormRef}>
         <BlogForm createBlog={createBlog}/>
       </Toggeable> 
 
