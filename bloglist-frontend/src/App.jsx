@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Toggeable from './components/Toggeable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Message from './components/Message'
@@ -137,8 +138,11 @@ const App = () => {
   const blogsDisplay = ()=>(
     <div>
       <h2>blogs</h2>
-      <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in <button onClick={handleLogOut}>log out</button></p> 
-      { newBlogForm() }
+      <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in <button onClick={handleLogOut}>log out</button></p>
+
+      <Toggeable buttonLabel="Add a blog">
+        { newBlogForm() }
+      </Toggeable> 
 
       {
         blogs && 
