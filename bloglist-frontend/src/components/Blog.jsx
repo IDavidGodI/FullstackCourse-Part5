@@ -1,29 +1,29 @@
 import {useState} from "react"
 
-const Blog = ({ blog }) =>{ 
+const Blog = ({ blog, addLike, removeBlog, user }) =>{ 
   
-  // const blogStyle = 
+  const blogStyle = {
+      margin: "10px 0",
+      padding: "5px 20px",
+      border: "1px dashed black"
+    }
 
-  const [viewDetails, setViewDetails] = useState(false);
-
+  const [viewDetails, setViewDetails] = useState(false)
 
   const toggleDetails = () => {
     setViewDetails(!viewDetails)
   }
 
   return (
-    <div style={{
-      margin: "10px 0",
-      padding: "0.1px 20px",
-      border: "1px dashed black"
-    }}>
+    <div style={blogStyle}>
       <p>{blog.title} {blog.author} <button onClick={toggleDetails}>{viewDetails? "hide" : "view"}</button></p>
       {
         viewDetails &&
         <>
           <p>{blog.url}</p>
-          <p>likes {blog.likes} <button>like</button></p>
+          <p>likes {blog.likes} <button onClick = { () => addLike(blog)}>like</button></p>
           <p>Added by <b>{blog.user.name}</b></p>
+          {user.username === blog.user.userName && <button onClick = { () => removeBlog(blog)}>Delete blog</button>}
         </>
       }
 

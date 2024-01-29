@@ -7,6 +7,8 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Message from './components/Message'
 
+
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
@@ -16,7 +18,9 @@ const App = () => {
 
   const BlogFormRef = useRef();
   
-
+  const sortBlogsByLikes = (blogs) => {
+    return blogs.sort((b1,b2) => b2.likes-b1.likes)
+  }
   const handleLogin = async (loginInfo) => {
     try{
       const newUser = await loginService.login(loginInfo)
@@ -61,6 +65,43 @@ const App = () => {
 
   }
 
+  const addLike = async (blog) => {
+    try{
+      const likes = blog.likes + 1;
+      const updatedBlog = await blogService.update(blog.id, {likes})
+      
+      setMessage({ text: "Blog liked", success: true})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+      
+      setBlogs(sortBlogsByLikes(blogs.map(b => b.id===blog.id? updatedBlog : b)))
+
+    }catch(e){
+      setMessage({ text: e.response.data.error, success: false})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
+  }
+
+  const removeBlog = async (blog) => {
+    try{
+      await blogService.remove(blog.id)
+      
+      setMessage({ text: "Blog deleted", success: true})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+      setBlogs(blogs.filter(b => b.id!==blog.id))
+
+    }catch(e){
+      setMessage({ text: e.response.data.error, success: false})
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
+  }
   const handleLogOut = () =>{
     window.localStorage.removeItem("BlogListUser");
     setUser(null)
@@ -70,7 +111,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll()
       .then(blogs =>{
-        setBlogs( blogs )  
+        setBlogs( sortBlogsByLikes(blogs) )  
       })  
   }, [])
 
@@ -96,7 +137,7 @@ const App = () => {
         blogs && 
         blogs.length>0?
         <>
-          {blogs.map(blog => <Blog key={blog.id} blog={blog} />)}
+          {blogs.map(blog => <Blog key={blog.id} blog={blog} addLike={addLike} removeBlog={removeBlog} user={user}/>)}
         </>
         :
         <p>You don't have any blog</p>
