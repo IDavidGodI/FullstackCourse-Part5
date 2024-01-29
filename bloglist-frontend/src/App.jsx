@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Toggeable from './components/Toggeable'
+import BlogForm from './components/BlogForm'
+import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Message from './components/Message'
@@ -8,45 +10,34 @@ import Message from './components/Message'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [userName, setUserName] = useState('')
-  const [password, setPassword] = useState('')
+  
   const [message, setMessage] = useState(null)
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
+  const handleLogin = async (loginInfo) => {
     try{
-      const newUser = await loginService.login({userName, password})
+      const newUser = await loginService.login(loginInfo)
 
       window.localStorage.setItem("BlogListUser", JSON.stringify(newUser))
       blogService.setToken(newUser.token)
       setUser(newUser)
-      setUserName('')
-      setPassword('')
 
+      return true;
     }catch(e){
       setMessage({ text: "Wrong credentials", success: false})
       setTimeout(() => {
         setMessage(null)
       }, 5000)
+      return false;
     }
   }
 
-  const handleNewBlog = async (event) =>{
-    event.preventDefault();
+  const createBlog = async (blogObject) =>{
 
     try{
-      const addedBlog = await blogService.create({
-        title, author, url
-      })
-
-      setTitle('')
-      setAuthor('')
-      setUrl('')
+      console.log(blogObject)
+      const addedBlog = await blogService.create(blogObject)
 
       setBlogs(blogs.concat(addedBlog))
       setMessage({ text: "New blog added!", success: true})
@@ -54,11 +45,15 @@ const App = () => {
         setMessage(null)
       }, 5000)
 
+      return true;
+
     }catch(e){
       setMessage({ text: e.response.data.error, success: false})
       setTimeout(() => {
         setMessage(null)
       }, 5000)
+
+      return false;
     }
 
   }
@@ -85,63 +80,13 @@ const App = () => {
     } 
   }, [])
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        Username: <input 
-          type="text" name="userName" placeholder="username"
-          value={ userName }
-          onChange = { ({target}) => setUserName(target.value) }
-        />
-      </div>
-      <div>
-        Password: <input 
-          type="password" name="password" placeholder="password"
-          value={ password }
-          onChange = { ({target}) => setPassword(target.value) }
-        />
-      </div>
-      <button type="submit">log in</button>
-    </form>
-  )
-
-  const newBlogForm = ()=>(
-    <div>
-      <h2>New blog</h2>
-      <form onSubmit={handleNewBlog}>
-        <div>
-          <input 
-            type="text" name="title" placeholder="TITLE"
-            value={ title }
-            onChange = { ({target}) => setTitle(target.value) }
-          />
-        </div>
-        <div>
-          <input 
-            type="text" name="author" placeholder="AUTHOR"
-            value={ author }
-            onChange = { ({target}) => setAuthor(target.value) }
-          />
-        </div>
-        <div>
-          <input 
-            type="text" name="url" placeholder="URL"
-            value={ url }
-            onChange = { ({target}) => setUrl(target.value) }
-          />
-        </div>
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
-
   const blogsDisplay = ()=>(
     <div>
       <h2>blogs</h2>
       <p style={{fontSize: "18px"}}><b>{ user.name }</b> logged in <button onClick={handleLogOut}>log out</button></p>
 
       <Toggeable buttonLabel="Add a blog">
-        { newBlogForm() }
+        <BlogForm createBlog={createBlog}/>
       </Toggeable> 
 
       {
@@ -165,7 +110,7 @@ const App = () => {
           success = { message.success }
         />
       }
-      { !user && loginForm()}
+      { !user && <LoginForm handleLogin={handleLogin}/>}
       { user && blogsDisplay()}
     </>
   )

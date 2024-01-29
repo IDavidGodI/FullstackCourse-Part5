@@ -41,12 +41,14 @@ blogsRouter.post("/", userExtractor, async (req, res) => {
 blogsRouter.delete("/:id", userExtractor, async (req, res) => {
 
   const user = req.user;
-
   if (!user.blogs.includes(req.params.id))
     return res.status(401).json({ error: "A blog can only be deleted by its creator" })
 
   await Blog.findByIdAndDelete(req.params.id);
 
+
+  user.blogs = user.blogs.filter(b => b.toString() !== req.params.id)
+  user.save()
   res.status(204).end();
 })
 
