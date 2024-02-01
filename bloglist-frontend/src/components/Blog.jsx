@@ -1,12 +1,12 @@
-import {useState} from "react"
+import { useState } from "react"
 
-const Blog = ({ blog, addLike, removeBlog, user }) =>{ 
-  
+const Blog = ({ blog, addLike, removeBlog, user }) => {
+
   const blogStyle = {
-      margin: "10px 0",
-      padding: "5px 20px",
-      border: "1px dashed black"
-    }
+    margin: "10px 0",
+    padding: "5px 20px",
+    border: "1px dashed black"
+  }
 
   const [viewDetails, setViewDetails] = useState(false)
 
@@ -16,7 +16,7 @@ const Blog = ({ blog, addLike, removeBlog, user }) =>{
 
   return (
     <div style={blogStyle}>
-      <p>{blog.title} {blog.author} <button onClick={toggleDetails}>{viewDetails? "hide" : "view"}</button></p>
+      <p>{blog.title} {blog.author} <button onClick={toggleDetails}>{viewDetails ? "hide" : "view"}</button></p>
       {
         viewDetails &&
         <>
@@ -27,7 +27,7 @@ const Blog = ({ blog, addLike, removeBlog, user }) =>{
         </>
       }
 
-    </div>  
+    </div>
   )
 }
 export default Blog

@@ -1,10 +1,10 @@
-import axios from 'axios'
-const baseUrl = '/api/blogs'
+import axios from "axios"
+const baseUrl = "/api/blogs"
 
 let token = null;
 
 
-const setToken = newToken=>{
+const setToken = newToken => {
   token = `Bearer ${newToken}`
 }
 
