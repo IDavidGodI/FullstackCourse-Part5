@@ -13,7 +13,7 @@ module.exports = {
   "rules": {
     "no-unused-vars": "warn",
     "eqeqeq": "warn",
-    "no-trailing-spaces": "warn",
+    "no-trailing-spaces": ["warn", { "skipBlankLines": true }],
     "object-curly-spacing": [
       "warn", "always"
     ],
